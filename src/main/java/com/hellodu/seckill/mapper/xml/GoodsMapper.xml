@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hellodu.seckill.mapper.GoodsMapper">
+
+    <!-- 获取商品列表  List<GoodsVo> getGoodsVo();-->
+    <select id="getGoodsVo" resultType="com.hellodu.seckill.entity.vo.GoodsVo">
+        SELECT
+            g.id,
+            g.goods_name,
+            g.goods_title,
+            g.goods_detail,
+            g.goods_img,
+            g.goods_price,
+            g.goods_stock,
+            sg.seckill_price,
+            sg.stock_count,
+            sg.start_time,
+            sg.end_time
+        FROM
+            t_goods g
+                LEFT JOIN t_seckill_goods sg ON g.id = sg.goods_id
+    </select>
+
+    <!-- 获取商品详情 GoodsVo getGoodsVoByGoodsId(String goodsId); -->
+    <select id="getGoodsVoByGoodsId" resultType="com.hellodu.seckill.entity.vo.GoodsVo">
+        SELECT
+            g.id,
+            g.goods_name,
+            g.goods_title,
+            g.goods_detail,
+            g.goods_img,
+            g.goods_price,
+            g.goods_stock,
+            sg.seckill_price,
+            sg.stock_count,
+            sg.start_time,
+            sg.end_time
+        FROM
+            t_goods g
+                LEFT JOIN t_seckill_goods sg ON g.id = sg.goods_id
+        WHERE g.id = #{goodsId}
+    </select>
+    
+</mapper>
