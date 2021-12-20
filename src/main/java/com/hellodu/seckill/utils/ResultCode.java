@@ -22,4 +22,8 @@ public interface ResultCode {
     Integer NoStockError = 20007; // 库存不足
 
     Integer RepeatSeckillError = 20008; // 重复下单
+
+    Integer NotLoginError = 20009; // 未登录异常
+
+    Integer PwdUpdateError = 20010; // 密码修改失败
 }

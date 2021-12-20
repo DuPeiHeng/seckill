@@ -1,10 +1,14 @@
 package com.hellodu.seckill.controller;
 
 import com.hellodu.seckill.entity.User;
+import com.hellodu.seckill.entity.vo.DetailVo;
 import com.hellodu.seckill.entity.vo.GoodsVo;
 import com.hellodu.seckill.service.GoodsService;
 import com.hellodu.seckill.service.UserService;
+import com.hellodu.seckill.utils.R;
 import com.hellodu.seckill.utils.RedisUtils;
+import com.hellodu.seckill.utils.ResultCode;
+import com.hellodu.seckill.utils.exceptionhandler.MyExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -70,9 +74,9 @@ public class GoodsController {
      * @param goodId
      * @return
      */
-    @RequestMapping(value = "/toDetail/{goodId}", produces = "text/html;charset=utf-8")
+    @RequestMapping(value = "/toDetail2/{goodId}", produces = "text/html;charset=utf-8")
     @ResponseBody
-    public String toDetail(Model model, @CookieValue(value = "userToken",required = false) String token,
+    public String toDetail2(Model model, @CookieValue(value = "userToken",required = false) String token,
                            @PathVariable String goodId, HttpServletRequest request, HttpServletResponse response) {
         User user = userService.getUserByCookie(token);
         if(user == null) return "login";
@@ -119,5 +123,51 @@ public class GoodsController {
             redisUtils.set("goodsDetail:" + goodId, html_goodsDetails, 60);
         }
         return html_goodsDetails;
+    }
+
+
+    /**
+     * 跳转商品详情页
+     * @param goodId
+     * @return
+     */
+    @RequestMapping(value = "/toDetail/{goodId}")
+    @ResponseBody
+    public R toDetail(Model model, @CookieValue(value = "userToken",required = false) String token,
+                      @PathVariable String goodId) {
+        User user = userService.getUserByCookie(token);
+        if(user == null) R.error().code(ResultCode.NotLoginError).message("请先登录");
+
+        GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodId);
+
+        Date startTime = goodsVo.getStartTime(); // 秒杀开始时间
+        Date endTime = goodsVo.getEndTime(); // 秒杀结束时间
+        // 当前时间
+        Date nowTime = new Date();
+        // 秒杀状态
+        int seckillStatus = -1;
+        // 秒杀倒计时 -- 秒
+        int countdownSeconds = -1;
+        if(nowTime.before(startTime)) {
+            // 说明秒杀未开始
+            seckillStatus = 0;
+            // 前端显示秒杀倒计时
+            countdownSeconds = (int)((startTime.getTime() - nowTime.getTime()) / 1000);
+        } else if(nowTime.after(endTime)) {
+            // 说明秒杀已经结束
+            seckillStatus = 2;
+        } else {
+            seckillStatus = 1;
+            // 秒杀进行中
+            countdownSeconds = 0;
+        }
+        DetailVo detailVo = new DetailVo();
+
+        detailVo.setUser(user);
+        detailVo.setGoodsVo(goodsVo);
+        detailVo.setCountdownSeconds(countdownSeconds);
+        detailVo.setSeckillStatus(seckillStatus);
+
+        return R.ok().data("detailVo", detailVo);
     }
 }
