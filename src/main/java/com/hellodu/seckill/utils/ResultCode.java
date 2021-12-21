@@ -26,4 +26,6 @@ public interface ResultCode {
     Integer NotLoginError = 20009; // 未登录异常
 
     Integer PwdUpdateError = 20010; // 密码修改失败
+
+    Integer OrderNotExist = 20011; //订单不存在
 }

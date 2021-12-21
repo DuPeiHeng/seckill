@@ -6,14 +6,19 @@ import com.hellodu.seckill.entity.SeckillGoods;
 import com.hellodu.seckill.entity.SeckillOrder;
 import com.hellodu.seckill.entity.User;
 import com.hellodu.seckill.entity.vo.GoodsVo;
+import com.hellodu.seckill.entity.vo.OrderDetailVo;
 import com.hellodu.seckill.mapper.OrderMapper;
+import com.hellodu.seckill.service.GoodsService;
 import com.hellodu.seckill.service.OrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hellodu.seckill.service.SeckillGoodsService;
 import com.hellodu.seckill.service.SeckillOrderService;
+import com.hellodu.seckill.utils.ResultCode;
+import com.hellodu.seckill.utils.exceptionhandler.MyExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
@@ -38,6 +43,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Autowired
     private SeckillOrderService seckillOrderService;
 
+    @Autowired
+    private GoodsService goodsService;
+
     /**
      * 创建订单
      * @param user
@@ -58,7 +66,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setGoodsCount(1);
         order.setGoodsPrice(seckillGoods.getSeckillPrice());
         order.setOrderChannel(1);
-        order.setStatus(1);
+        order.setStatus(0);
         order.setCreateTime(new Date());
 
         // 生成订单
@@ -72,5 +80,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         seckillOrderService.save(seckillOrder);
         return order;
+    }
+
+    /**
+     * 订单详情
+     * @param orderId
+     * @return
+     */
+    @Override
+    public OrderDetailVo getOrderDetail(String orderId) {
+        if(StringUtils.isEmpty(orderId)) throw new MyExceptionHandler(ResultCode.OrderNotExist, "订单不存在");
+        Order order = orderService.getById(orderId);
+        GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(order.getGoodsId());
+        OrderDetailVo vo = new OrderDetailVo();
+        vo.setOrder(order);
+        vo.setGoodsVo(goodsVo);
+        return vo;
     }
 }

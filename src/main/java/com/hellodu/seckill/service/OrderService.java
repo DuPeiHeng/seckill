@@ -4,6 +4,7 @@ import com.hellodu.seckill.entity.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hellodu.seckill.entity.User;
 import com.hellodu.seckill.entity.vo.GoodsVo;
+import com.hellodu.seckill.entity.vo.OrderDetailVo;
 
 /**
  * <p>
@@ -16,4 +17,6 @@ import com.hellodu.seckill.entity.vo.GoodsVo;
 public interface OrderService extends IService<Order> {
 
     Order createOrder(User user, GoodsVo goodsVo);
+
+    OrderDetailVo getOrderDetail(String orderId);
 }
